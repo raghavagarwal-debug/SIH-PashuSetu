@@ -1,0 +1,138 @@
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&family=Outfit:wght@500;600;700&display=swap');
+@import 'tailwindcss';
+
+@theme inline {
+  --color-background: var(--background);
+  --color-foreground: var(--foreground);
+  --color-card: var(--card);
+  --color-card-foreground: var(--card-foreground);
+  --color-primary: var(--primary);
+  --color-primary-foreground: var(--primary-foreground);
+  --color-secondary: var(--secondary);
+  --color-secondary-foreground: var(--secondary-foreground);
+  --color-muted: var(--muted);
+  --color-muted-foreground: var(--muted-foreground);
+  --color-accent: var(--accent);
+  --color-accent-foreground: var(--accent-foreground);
+  --color-border: var(--border);
+  --color-ring: var(--ring);
+  --radius-sm: calc(var(--radius) - 2px);
+  --radius-md: var(--radius);
+  --radius-lg: calc(var(--radius) + 4px);
+  --animate-pulse-slow: pulse 3s cubic-bezier(0.4, 0, 0.6, 1) infinite;
+}
+
+:root {
+  --background: #f8fafc;           /* Slate 50 */
+  --foreground: #0f172a;           /* Slate 900 */
+  --card: rgba(255, 255, 255, 0.7);/* White with opacity for glass */
+  --card-foreground: #0f172a;
+  --primary: #4f46e5;              /* Indigo 600 */
+  --primary-foreground: #ffffff;
+  --secondary: rgba(241, 245, 249, 0.6);
+  --secondary-foreground: #0f172a;
+  --muted: rgba(226, 232, 240, 0.6);
+  --muted-foreground: #64748b;     /* Slate 500 */
+  --accent: #7c3aed;               /* Violet 600 */
+  --accent-foreground: #ffffff;
+  --border: rgba(0, 0, 0, 0.08);
+  --ring: #4f46e5;
+  --radius: 12px;
+
+  /* Alert tier tokens */
+  --alert-watch: #f59e0b;          /* Amber 500 */
+  --alert-warning: #ea580c;        /* Orange 600 */
+  --alert-critical: #dc2626;       /* Red 600 */
+  --alert-safe: #059669;           /* Emerald 600 */
+}
+
+.dark {
+  /* It's dark by default now for that vibe */
+}
+
+html, body, #root {
+  height: 100%;
+}
+
+body {
+  background: radial-gradient(circle at 15% 50%, rgba(99, 102, 241, 0.08), transparent 25%),
+              radial-gradient(circle at 85% 30%, rgba(139, 92, 246, 0.08), transparent 25%);
+  background-color: var(--background);
+  background-attachment: fixed;
+}
+
+/* Glassmorphism for card elements */
+[class*="bg-[var(--card)]"] {
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
+}
+
+* {
+  font-family: 'Inter', system-ui, sans-serif;
+  scrollbar-width: none;
+}
+
+*::-webkit-scrollbar {
+  display: none;
+}
+
+*:hover::-webkit-scrollbar {
+  display: block;
+  width: 4px;
+  height: 4px;
+}
+
+*:hover::-webkit-scrollbar-thumb {
+  background: var(--border);
+  border-radius: 4px;
+}
+
+h1, h2, h3, h4, h5, h6 {
+  font-family: 'Outfit', sans-serif;
+  font-weight: 600;
+  letter-spacing: -0.02em;
+}
+
+.font-mono, code, .mono {
+  font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
+}
+
+.status-badge {
+  font-family: 'Inter', sans-serif;
+  font-size: 0.65rem;
+  font-weight: 600;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+
+/* Pulse animation for critical alerts */
+@keyframes pulse-critical {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0.5; }
+}
+
+.pulse-critical {
+  animation: pulse-critical 1.5s ease-in-out infinite;
+}
+
+/* Map dot animations */
+@keyframes ring-expand {
+  0% { transform: scale(0.8); opacity: 0.8; }
+  100% { transform: scale(2.5); opacity: 0; }
+}
+
+.ring-expand {
+  animation: ring-expand 2s ease-out infinite;
+}
+
+/* Smooth tab underline */
+.tab-active::after {
+  content: '';
+  position: absolute;
+  bottom: -1px;
+  left: 0;
+  right: 0;
+  height: 2px;
+  background: var(--primary);
+  border-radius: 2px 2px 0 0;
+}

@@ -1,0 +1,10 @@
+{
+  "description": "Enables farmers and field workers to report animal health issues, detect outbreaks early, and receive multilingual advisories with geospatial and weather insights.",
+  "robots": {
+    "index": false
+  },
+  "accessibility": {
+    "addBypassLinks": false,
+    "ignoreReducedMotion": false
+  }
+}
