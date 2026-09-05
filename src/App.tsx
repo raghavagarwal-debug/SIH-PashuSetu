@@ -1298,7 +1298,365 @@ const TABS: { id: Tab; label: string; icon: string }[] = [
   { id: "advisories", label: "Advisories", icon: "⚑" },
 ];
 
+type UserRole = "admin" | "vet" | "farmer" | null;
+
+function LoginScreen({ onLogin }: { onLogin: (role: UserRole) => void }) {
+  const [role, setRole] = useState<"admin" | "vet" | "farmer">("admin");
+  const [username, setUsername] = useState("");
+  const [password, setPassword] = useState("");
+  const [error, setError] = useState("");
+
+  const handleLogin = (e: React.FormEvent) => {
+    e.preventDefault();
+    if (username === "admin" && password === "admin") {
+      onLogin(role);
+    } else {
+      setError("Invalid username or password (use admin/admin for demo)");
+    }
+  };
+
+  return (
+    <div className="min-h-screen bg-[var(--background)] flex items-center justify-center p-4">
+      <div className="w-full max-w-md bg-[var(--card)] rounded-2xl border border-[var(--border)] shadow-2xl overflow-hidden flex flex-col">
+        <div className="p-8 pb-6 text-center border-b border-[var(--border)] bg-[var(--muted)]">
+          <h1 className="text-3xl font-bold text-[var(--foreground)]" style={{ fontFamily: "'Outfit', sans-serif" }}>PashuSetu</h1>
+          <p className="text-sm text-[var(--muted-foreground)] mt-2">Animal Health Surveillance System</p>
+        </div>
+        <div className="p-8">
+          <div className="flex gap-2 mb-6 bg-[var(--muted)] p-1 rounded-xl">
+            {(["admin", "vet", "farmer"] as const).map(r => (
+              <button
+                key={r}
+                type="button"
+                onClick={() => setRole(r)}
+                className="flex-1 py-2 rounded-lg text-sm font-medium transition-all capitalize"
+                style={{
+                  background: role === r ? "var(--foreground)" : "transparent",
+                  color: role === r ? "var(--primary-foreground)" : "var(--muted-foreground)",
+                  boxShadow: role === r ? "0 2px 4px rgba(0,0,0,0.1)" : "none"
+                }}
+              >
+                {r}
+              </button>
+            ))}
+          </div>
+          
+          <form onSubmit={handleLogin} className="flex flex-col gap-4">
+            {error && <div className="p-3 bg-red-50 border border-red-200 text-red-600 rounded-lg text-sm">{error}</div>}
+            <div className="flex flex-col gap-1.5">
+              <label className="text-xs font-semibold text-[var(--muted-foreground)] uppercase tracking-wider">Username</label>
+              <input 
+                type="text" 
+                value={username}
+                onChange={e => setUsername(e.target.value)}
+                className="w-full border border-[var(--border)] bg-[var(--background)] rounded-lg px-4 py-3 text-sm focus:outline-none focus:ring-2 focus:ring-[var(--ring)] text-[var(--foreground)]" 
+                placeholder="Enter username (admin)" 
+              />
+            </div>
+            <div className="flex flex-col gap-1.5">
+              <label className="text-xs font-semibold text-[var(--muted-foreground)] uppercase tracking-wider">Password</label>
+              <input 
+                type="password"
+                value={password}
+                onChange={e => setPassword(e.target.value)}
+                className="w-full border border-[var(--border)] bg-[var(--background)] rounded-lg px-4 py-3 text-sm focus:outline-none focus:ring-2 focus:ring-[var(--ring)] text-[var(--foreground)]" 
+                placeholder="Enter password (admin)" 
+              />
+            </div>
+            <button 
+              type="submit" 
+              className="w-full mt-2 py-3 rounded-lg text-white font-semibold transition-opacity hover:opacity-90"
+              style={{ background: "#d97634" }}
+            >
+              Sign In as {role.charAt(0).toUpperCase() + role.slice(1)}
+            </button>
+          </form>
+        </div>
+      </div>
+    </div>
+  );
+}
+
+function FarmerAIChatbot() {
+  const [isOpen, setIsOpen] = useState(false);
+  const [messages, setMessages] = useState([
+    { text: "Namaste! I am PashuMitra, your AI Vet Assistant. How can I help your livestock today?", sender: "ai" }
+  ]);
+  const [input, setInput] = useState("");
+
+  const handleSend = () => {
+    if (!input.trim()) return;
+    setMessages(prev => [...prev, { text: input, sender: "user" }]);
+    setInput("");
+    
+    setTimeout(() => {
+      setMessages(prev => [...prev, { text: "I can help with that. Are there any other symptoms you've noticed, such as reduced milk yield or fever?", sender: "ai" }]);
+    }, 1000);
+  };
+
+  if (!isOpen) {
+    return (
+      <button 
+        onClick={() => setIsOpen(true)}
+        className="fixed bottom-6 right-6 w-14 h-14 bg-[#d97634] text-white rounded-full shadow-2xl flex items-center justify-center hover:scale-105 transition-transform z-50"
+      >
+        <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+          <path strokeLinecap="round" strokeLinejoin="round" d="M8 10h.01M12 10h.01M16 10h.01M9 16H5a2 2 0 01-2-2V6a2 2 0 012-2h14a2 2 0 012 2v8a2 2 0 01-2 2h-5l-5 5v-5z" />
+        </svg>
+      </button>
+    );
+  }
+
+  return (
+    <div className="fixed bottom-6 right-6 w-80 sm:w-96 bg-[var(--card)] border border-[var(--border)] rounded-2xl shadow-2xl flex flex-col overflow-hidden z-50 animate-in slide-in-from-bottom-4">
+      {/* Header */}
+      <div className="p-4 bg-[#d97634] text-white flex justify-between items-center">
+        <div className="flex items-center gap-2">
+          <div className="w-8 h-8 bg-white/20 rounded-full flex items-center justify-center font-bold">PM</div>
+          <div>
+            <h3 className="font-bold text-sm leading-none" style={{ fontFamily: "'Outfit', sans-serif" }}>PashuMitra AI</h3>
+            <span className="text-xs opacity-80">Always here to help</span>
+          </div>
+        </div>
+        <button onClick={() => setIsOpen(false)} className="opacity-80 hover:opacity-100 transition-opacity">
+          <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+            <path strokeLinecap="round" strokeLinejoin="round" d="M6 18L18 6M6 6l12 12" />
+          </svg>
+        </button>
+      </div>
+      
+      {/* Messages */}
+      <div className="flex-1 p-4 overflow-y-auto bg-[var(--muted)] flex flex-col gap-3" style={{ height: "320px" }}>
+        {messages.map((m, i) => (
+          <div key={i} className={`max-w-[80%] p-3 rounded-2xl text-sm ${m.sender === "ai" ? "bg-[var(--card)] text-[var(--foreground)] self-start border border-[var(--border)] rounded-tl-sm shadow-sm" : "bg-[#d97634] text-white self-end rounded-tr-sm shadow-sm"}`}>
+            {m.text}
+          </div>
+        ))}
+      </div>
+
+      {/* Suggested chips */}
+      <div className="px-3 py-2 bg-[var(--card)] border-t border-[var(--border)] flex gap-2 overflow-x-auto hide-scrollbar">
+        {["Report Symptom", "Vaccine Info", "Talk to Vet"].map(chip => (
+          <button 
+            key={chip} 
+            onClick={() => setInput(chip)}
+            className="whitespace-nowrap px-3 py-1 bg-[var(--muted)] border border-[var(--border)] text-[var(--foreground)] text-xs font-medium rounded-full hover:bg-[var(--border)] transition-colors"
+          >
+            {chip}
+          </button>
+        ))}
+      </div>
+
+      {/* Input */}
+      <div className="p-3 bg-[var(--card)] border-t border-[var(--border)] flex gap-2">
+        <input 
+          type="text" 
+          value={input}
+          onChange={e => setInput(e.target.value)}
+          onKeyDown={e => e.key === "Enter" && handleSend()}
+          placeholder="Type or use voice..." 
+          className="flex-1 bg-[var(--muted)] border border-[var(--border)] rounded-full px-4 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-[#d97634] text-[var(--foreground)]"
+        />
+        <button onClick={handleSend} className="w-9 h-9 flex items-center justify-center bg-[#d97634] text-white rounded-full shrink-0 hover:bg-[#c2662c] transition-colors">
+          <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+            <path strokeLinecap="round" strokeLinejoin="round" d="M12 19l9 2-9-18-9 18 9-2zm0 0v-8" />
+          </svg>
+        </button>
+      </div>
+    </div>
+  );
+}
+
+function FarmerPortal({ onLogout }: { onLogout: () => void }) {
+  const [tab, setTab] = useState<"dashboard" | "reports" | "new_report">("dashboard");
+  const [reportSubmitted, setReportSubmitted] = useState(false);
+
+  return (
+    <div className="min-h-screen bg-[var(--background)] flex flex-col">
+      {/* Floating pill header */}
+      <div className="sticky top-0 z-20 px-5 pt-4 pb-2">
+        <header
+          className="max-w-6xl mx-auto flex items-center justify-between gap-6 px-6 py-3 bg-[var(--card)]"
+          style={{
+            borderRadius: 999,
+            boxShadow: "0 8px 32px rgba(0,0,0,0.06), 0 2px 8px rgba(0,0,0,0.04)",
+            border: "1px solid var(--border)",
+          }}
+        >
+          {/* Brand */}
+          <span
+            className="text-base font-semibold whitespace-nowrap flex-shrink-0"
+            style={{ color: "var(--foreground)", fontFamily: "'Outfit', sans-serif", letterSpacing: "-0.01em" }}
+          >
+            PashuSetu Farmer
+          </span>
+
+          {/* Nav links */}
+          <nav className="hidden md:flex items-center gap-1 flex-1 justify-center">
+            {[
+              { id: "dashboard", label: "Dashboard" },
+              { id: "reports", label: "My Reports" },
+              { id: "new_report", label: "Submit Report" },
+            ].map(t => (
+              <button
+                key={t.id}
+                onClick={() => setTab(t.id as any)}
+                className="relative px-4 py-1.5 rounded-full text-sm transition-all whitespace-nowrap"
+                style={{
+                  color: tab === t.id ? "var(--primary-foreground)" : "var(--foreground)",
+                  background: tab === t.id ? "var(--foreground)" : "transparent",
+                  fontWeight: tab === t.id ? 500 : 400,
+                }}
+              >
+                {t.label}
+              </button>
+            ))}
+          </nav>
+
+          {/* CTA */}
+          <div className="flex gap-2">
+            <button
+              onClick={onLogout}
+              className="flex-shrink-0 px-4 py-2 text-sm font-medium border border-[var(--border)] transition-opacity hover:bg-[var(--muted)]"
+              style={{
+                borderRadius: 999,
+                fontFamily: "'Outfit', sans-serif",
+                color: "var(--foreground)"
+              }}
+            >
+              Log Out
+            </button>
+          </div>
+        </header>
+
+        {/* Mobile tab row */}
+        <div className="md:hidden flex gap-1 overflow-x-auto mt-2 pb-1">
+          {[
+            { id: "dashboard", label: "Dashboard" },
+            { id: "reports", label: "My Reports" },
+            { id: "new_report", label: "Submit Report" },
+          ].map(t => (
+            <button
+              key={t.id}
+              onClick={() => setTab(t.id as any)}
+              className="px-3 py-1.5 rounded-full text-xs font-medium whitespace-nowrap border transition-all"
+              style={{
+                background: tab === t.id ? "var(--foreground)" : "var(--card)",
+                color: tab === t.id ? "var(--primary-foreground)" : "var(--foreground)",
+                borderColor: tab === t.id ? "var(--foreground)" : "var(--border)",
+              }}
+            >
+              {t.label}
+            </button>
+          ))}
+        </div>
+      </div>
+
+      <main className="flex-1 p-5 max-w-4xl mx-auto w-full flex flex-col gap-6">
+        {tab === "dashboard" && (
+          <div className="flex flex-col gap-6">
+            {/* Welcome Section */}
+            <div className="bg-[#fef7f2] border border-[#e5d4c5] rounded-2xl p-6">
+              <h2 className="text-xl font-bold text-[#3d405b] mb-2">Welcome, Ramesh Patel</h2>
+              <p className="text-sm text-[#3d405b] opacity-80">Your herd is currently safe. 1 upcoming vaccination due.</p>
+              <div className="mt-4 flex gap-3">
+                 <button onClick={() => setTab("new_report")} className="px-5 py-2.5 rounded-lg font-semibold text-white transition-opacity shadow-md whitespace-nowrap" style={{ background: "#d32f2f" }}>
+                   Report Sick Animal
+                 </button>
+                 <button className="px-5 py-2.5 rounded-lg font-semibold border border-[#e5d4c5] bg-white text-[#3d405b] whitespace-nowrap hover:bg-gray-50 transition-colors">
+                   Call Vet
+                 </button>
+              </div>
+            </div>
+            
+            <div className="grid md:grid-cols-2 gap-6">
+              {/* Advisories */}
+              <div className="flex flex-col gap-3">
+                <h3 className="font-semibold text-[var(--foreground)]" style={{ fontFamily: "'Outfit', sans-serif" }}>Local Advisories</h3>
+                <div className="bg-[#fff3e0] border border-[#ffcc80] rounded-xl p-4 flex gap-3 items-start">
+                  <span className="text-[#ee8924] mt-0.5">⚠</span>
+                  <div>
+                    <p className="font-bold text-[#b45f06]">Lumpy Skin Disease Alert</p>
+                    <p className="text-sm text-[#b45f06] mt-1 opacity-90">Cases reported within 30km. Ensure all cattle are vaccinated. Restrict movement to haats.</p>
+                  </div>
+                </div>
+              </div>
+
+              {/* My Animals */}
+              <div className="flex flex-col gap-3">
+                <h3 className="font-semibold text-[var(--foreground)]" style={{ fontFamily: "'Outfit', sans-serif" }}>My Livestock</h3>
+                <div className="bg-[var(--card)] border border-[var(--border)] rounded-xl divide-y divide-[var(--border)] overflow-hidden">
+                   {[
+                     { id: "JH-BV-00412", species: "Cattle", status: "Due for FMD", healthy: true },
+                     { id: "JH-BV-00413", species: "Cattle", status: "Up to date", healthy: true },
+                     { id: "JH-BF-08821", species: "Buffalo", status: "Up to date", healthy: true },
+                   ].map(a => (
+                     <div key={a.id} className="p-4 flex justify-between items-center hover:bg-[var(--muted)] transition-colors">
+                       <div className="flex items-center gap-3">
+                         <span className="text-2xl">{SPECIES_ICONS[a.species]}</span>
+                         <div>
+                           <p className="font-semibold text-sm text-[var(--foreground)]">{a.id}</p>
+                           <p className="text-xs text-[var(--muted-foreground)]">{a.status}</p>
+                         </div>
+                       </div>
+                       <span className="px-3 py-1 bg-[#e8f5e9] text-[#2e7d32] text-xs font-bold rounded-full border border-[#c8e6c9]">
+                         Healthy
+                       </span>
+                     </div>
+                   ))}
+                </div>
+              </div>
+            </div>
+          </div>
+        )}
+
+        {tab === "reports" && (
+          <div className="flex flex-col gap-4">
+            <h2 className="text-xl font-bold text-[var(--foreground)]" style={{ fontFamily: "'Outfit', sans-serif" }}>My Submitted Reports</h2>
+            <div className="bg-[var(--card)] border border-[var(--border)] rounded-xl divide-y divide-[var(--border)]">
+              {[
+                { id: "RPT-9812423", date: "2024-08-20", species: "Cattle", issues: "Fever, Loss of appetite", status: "Resolved", vetNotes: "Administered paracetamol and antibiotics." },
+                { id: "RPT-6632121", date: "2024-05-11", species: "Buffalo", issues: "Lameness", status: "Resolved", vetNotes: "Advised rest and calcium supplements." }
+              ].map(r => (
+                <div key={r.id} className="p-5 flex flex-col gap-2 hover:bg-[var(--muted)] transition-colors">
+                  <div className="flex justify-between items-start">
+                    <div>
+                      <span className="text-sm font-bold text-[var(--foreground)] font-mono">{r.id}</span>
+                      <span className="text-sm text-[var(--muted-foreground)] ml-3">{r.date}</span>
+                    </div>
+                    <span className="px-3 py-1 bg-[#e8f5e9] text-[#2e7d32] text-xs font-bold rounded-full border border-[#c8e6c9]">
+                      {r.status}
+                    </span>
+                  </div>
+                  <p className="text-sm text-[var(--foreground)] mt-1"><strong>Species:</strong> {r.species}</p>
+                  <p className="text-sm text-[var(--foreground)]"><strong>Symptoms:</strong> {r.issues}</p>
+                  <div className="mt-2 p-3 bg-[var(--muted)] rounded-lg text-sm text-[var(--foreground)] border border-[var(--border)]">
+                    <strong className="text-[var(--muted-foreground)] block mb-1">Vet Notes:</strong> {r.vetNotes}
+                  </div>
+                </div>
+              ))}
+            </div>
+          </div>
+        )}
+
+        {tab === "new_report" && (
+          <div>
+            <h2 className="text-xl font-bold text-[var(--foreground)] mb-4" style={{ fontFamily: "'Outfit', sans-serif" }}>Submit a New Report</h2>
+            <ReportForm submitted={reportSubmitted} setSubmitted={setReportSubmitted} />
+          </div>
+        )}
+      </main>
+
+      {/* AI Chatbot Floating Widget */}
+      <FarmerAIChatbot />
+    </div>
+  );
+}
+
 export default function App() {
+  const [isAuthenticated, setIsAuthenticated] = useState(false);
+  const [userRole, setUserRole] = useState<UserRole>(null);
+  
   const [tab, setTab] = useState<Tab>("dashboard");
   const [reportSubmitted, setReportSubmitted] = useState(false);
   const [showReportModal, setShowReportModal] = useState(false);
@@ -1309,6 +1667,24 @@ export default function App() {
     setDark(next);
     document.documentElement.classList.toggle("dark", next);
   };
+
+  const handleLogin = (role: UserRole) => {
+    setUserRole(role);
+    setIsAuthenticated(true);
+  };
+
+  const handleLogout = () => {
+    setIsAuthenticated(false);
+    setUserRole(null);
+  };
+
+  if (!isAuthenticated) {
+    return <LoginScreen onLogin={handleLogin} />;
+  }
+
+  if (userRole === "farmer") {
+    return <FarmerPortal onLogout={handleLogout} />;
+  }
 
   return (
     <div className="min-h-full bg-[var(--background)] flex flex-col">
@@ -1353,29 +1729,32 @@ export default function App() {
             ))}
           </nav>
 
-          {/* Dark mode toggle */}
-          {/* <button
-            onClick={toggleDark}
-            title={dark ? "Switch to light mode" : "Switch to dark mode"}
-            className="flex-shrink-0 w-8 h-8 rounded-full flex items-center justify-center transition-colors"
-            style={{ background: dark ? "var(--foreground)" : "var(--muted)", color: dark ? "#ffca6e" : "var(--foreground)" }}
-          >
-            {dark ? "☽" : "○"}
-          </button> */}
-
           {/* CTA */}
-          <button
-            onClick={() => setShowReportModal(true)}
-            className="flex-shrink-0 px-5 py-2 text-sm font-semibold whitespace-nowrap transition-opacity hover:opacity-80"
-            style={{
-              background: "var(--foreground)",
-              color: "var(--primary-foreground)",
-              borderRadius: 999,
-              fontFamily: "'Outfit', sans-serif",
-            }}
-          >
-            &nbsp;&nbsp;Report
-          </button>
+          <div className="flex gap-2">
+            <button
+              onClick={handleLogout}
+              className="flex-shrink-0 px-4 py-2 text-sm font-medium border border-[var(--border)] transition-opacity hover:bg-[var(--muted)]"
+              style={{
+                borderRadius: 999,
+                fontFamily: "'Outfit', sans-serif",
+                color: "var(--foreground)"
+              }}
+            >
+              Log Out
+            </button>
+            <button
+              onClick={() => setShowReportModal(true)}
+              className="flex-shrink-0 px-5 py-2 text-sm font-semibold whitespace-nowrap transition-opacity hover:opacity-80"
+              style={{
+                background: "var(--foreground)",
+                color: "var(--primary-foreground)",
+                borderRadius: 999,
+                fontFamily: "'Outfit', sans-serif",
+              }}
+            >
+              &nbsp;&nbsp;Report
+            </button>
+          </div>
         </header>
 
         {/* Mobile tab row */}
